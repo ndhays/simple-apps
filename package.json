@@ -2,7 +2,9 @@
   "name": "@simple-apps/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "release": "npx nx release --skip-publish"
+  },
   "private": true,
   "dependencies": {},
   "devDependencies": {
