@@ -24,7 +24,14 @@ jobs:
 
       - run: npm ci
 
-      - name: Build all apps
+      - name: Build all apps (macOS)
+        if: matrix.os == 'macos-latest'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx nx run-many --target=build --configuration=release
+        run: npx nx run-many --target=build --configuration=release -- --mac
+
+      - name: Build all apps (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx nx run-many --target=build --configuration=release -- --linux
