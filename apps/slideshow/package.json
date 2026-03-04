@@ -1,6 +1,6 @@
 {
   "name": "slideshow",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "A beautiful local image slideshow app",
   "main": "src/main.js",

@@ -1,6 +1,6 @@
 {
   "name": "player",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "A minimal music player",
   "main": "src/main.js",
