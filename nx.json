@@ -12,7 +12,9 @@
   },
   "release": {
     "changelog": {
-      "projectChangelogs": true
+      "projectChangelogs": {
+        "createRelease": "github"
+      }
     },
     "projectsRelationship": "independent",
     "projects": [
