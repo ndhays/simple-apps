@@ -5,11 +5,11 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx electron-builder --mac --project apps/slideshow"
+        "command": "npx electron-builder --project apps/slideshow"
       },
       "configurations": {
         "release": {
-          "command": "npx electron-builder --mac --publish always --project apps/slideshow"
+          "command": "npx electron-builder --publish always --project apps/slideshow"
         }
       }
     },
