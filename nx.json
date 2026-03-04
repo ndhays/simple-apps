@@ -16,6 +16,11 @@
         "createRelease": "github"
       }
     },
+    "git": {
+      "commit": true,
+      "tag": true,
+      "push": false
+    },
     "projectsRelationship": "independent",
     "projects": [
       "slideshow",
