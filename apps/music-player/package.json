@@ -15,6 +15,7 @@
   },
   "build": {
     "appId": "com.player.app",
+    "electronVersion": "28.3.3",
     "productName": "Player",
     "mac": {
       "category": "public.app-category.music",
