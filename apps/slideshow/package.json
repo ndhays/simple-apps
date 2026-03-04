@@ -1,7 +1,10 @@
 {
   "name": "slideshow",
   "version": "0.0.4",
-  "author": "Nick Demarest",
+  "author": {
+    "name": "Nick Demarest",
+    "email": "ndhays@users.noreply.github.com"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ndhays/simple-apps"
