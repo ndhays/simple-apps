@@ -6,32 +6,35 @@ on:
       - '*@*'
 
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
+  build-mac:
+    runs-on: macos-latest
     permissions:
       contents: write
-    strategy:
-      matrix:
-        os: [macos-latest,ubuntu-latest]
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-
       - run: npm ci
-
-      - name: Build all apps (macOS)
-        if: matrix.os == 'macos-latest'
+      - name: Build Mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx nx run-many --target=build --configuration=release -- --mac
+        run: npx nx run-many --target=build --configuration=release-mac
 
-      - name: Build all apps (Linux)
-        if: matrix.os == 'ubuntu-latest'
+  build-linux:
+    needs: build-mac
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - name: Build Linux
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx nx run-many --target=build --configuration=release -- --linux
+        run: npx nx run-many --target=build --configuration=release-linux
