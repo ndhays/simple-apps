@@ -1,6 +1,11 @@
 {
   "name": "player",
-  "version": "0.0.3",
+  "version": "0.0.1",
+  "author": "Nick Demarest",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ndhays/simple-apps"
+  },
   "private": true,
   "description": "A minimal music player",
   "main": "src/main.js",
