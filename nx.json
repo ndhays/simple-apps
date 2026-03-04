@@ -11,11 +11,6 @@
     "sharedGlobals": []
   },
   "release": {
-    "changelog": {
-      "projectChangelogs": {
-        "createRelease": "github"
-      }
-    },
     "git": {
       "commit": true,
       "tag": true,
