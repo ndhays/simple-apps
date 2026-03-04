@@ -1,0 +1,32 @@
+{
+  "name": "slideshow",
+  "version": "0.0.1",
+  "private": true,
+  "description": "A beautiful local image slideshow app",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac",
+    "build-dmg": "electron-builder --mac dmg"
+  },
+  "build": {
+    "appId": "com.slideshow.app",
+    "electronVersion": "28.3.3",
+    "productName": "Slideshow",
+    "mac": {
+      "category": "public.app-category.photography",
+      "icon": "assets/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "dmg": {
+      "title": "Slideshow"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*"
+    ]
+  }
+}

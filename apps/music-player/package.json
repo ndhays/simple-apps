@@ -1,0 +1,30 @@
+{
+  "name": "player",
+  "version": "0.0.1",
+  "private": true,
+  "description": "A minimal music player",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.player.app",
+    "productName": "Player",
+    "mac": {
+      "category": "public.app-category.music",
+      "icon": "assets/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*"
+    ]
+  },
+  "dependencies": {
+    "music-metadata": "^9.0.0"
+  }
+}

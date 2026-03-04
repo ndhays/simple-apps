@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: file:; media-src 'self' file:; style-src 'unsafe-inline';">
+  <title>Player</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+      -webkit-app-region: drag;
+      display: flex;
+      flex-direction: column;
+    }
+
+    button, input, #drawer, #file-list, #seek-wrap, #vol-wrap {
+      -webkit-app-region: no-drag;
+    }
+
+    /* ── Drop screen ── */
+    #drop-screen {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; background: #0a0a0a; z-index: 100;
+      -webkit-app-region: no-drag;
+    }
+    #drop-screen.drag-over { background: #111; }
+    #drop-screen .drop-icon { opacity: 0.25; margin-bottom: 8px; }
+    #drop-screen h1 { font-size: 20px; font-weight: 500; opacity: 0.75; }
+    #drop-screen p { font-size: 13px; opacity: 0.35; }
+    #open-btn {
+      margin-top: 8px; padding: 10px 24px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff; border-radius: 20px; font-size: 13px; cursor: pointer;
+      transition: background 0.2s;
+    }
+    #open-btn:hover { background: rgba(255,255,255,0.15); }
+
+    /* ── App ── */
+    #app { display: none; flex-direction: column; height: 100vh; }
+
+    /* ── Visualizer ── */
+    #visualizer-wrap {
+      position: relative; flex-shrink: 0; height: 110px;
+      background: #000; overflow: hidden;
+    }
+    #album-art {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; opacity: 0; transition: opacity 0.5s;
+      filter: blur(24px) brightness(0.35); transform: scale(1.1);
+    }
+    #album-art.visible { opacity: 1; }
+    #visualizer { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #album-thumb {
+      position: absolute; bottom: 12px; left: 16px;
+      width: 52px; height: 52px; border-radius: 6px;
+      object-fit: cover; opacity: 0; transition: opacity 0.4s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    }
+    #album-thumb.visible { opacity: 1; }
+    #track-info { position: absolute; bottom: 14px; left: 82px; right: 16px; }
+    #track-title {
+      font-size: 14px; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.95;
+    }
+    #track-artist {
+      font-size: 12px; opacity: 0.5; margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ── Seek ── */
+    #seek-wrap { padding: 10px 16px 4px; flex-shrink: 0; }
+    #seek {
+      width: 100%; height: 3px; -webkit-appearance: none;
+      background: rgba(255,255,255,0.12); border-radius: 2px; cursor: pointer; outline: none;
+    }
+    #seek::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 12px; height: 12px;
+      border-radius: 50%; background: #fff; cursor: pointer; opacity: 0; transition: opacity 0.2s;
+    }
+    #seek-wrap:hover #seek::-webkit-slider-thumb { opacity: 1; }
+    #time-row { display: flex; justify-content: space-between; font-size: 10px; opacity: 0.35; margin-top: 5px; }
+
+    /* ── Controls ── */
+    #controls {
+      display: flex; align-items: center; padding: 8px 12px 10px; gap: 2px;
+      flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .ctrl-btn {
+      background: none; border: none; color: #fff; cursor: pointer;
+      padding: 7px; border-radius: 8px; opacity: 0.6;
+      transition: opacity 0.15s, background 0.15s;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ctrl-btn:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+    #play-btn { opacity: 0.9; }
+    #play-btn:hover { opacity: 1; }
+    .spacer { flex: 1; }
+    .divider { width: 1px; height: 16px; background: rgba(255,255,255,0.1); margin: 0 4px; flex-shrink: 0; }
+    #vol-wrap { display: flex; align-items: center; gap: 6px; padding: 0 4px; }
+    #vol-icon { opacity: 0.5; display: flex; align-items: center; }
+    #volume {
+      width: 64px; height: 3px; -webkit-appearance: none;
+      background: rgba(255,255,255,0.15); border-radius: 2px; cursor: pointer; outline: none;
+    }
+    #volume::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 10px; height: 10px;
+      border-radius: 50%; background: #fff; cursor: pointer;
+    }
+
+    /* ── Playlist ── */
+    #drawer { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    #drawer-header {
+      padding: 10px 14px 8px;
+      display: flex; align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0; gap: 6px;
+    }
+    #file-count { font-size: 11px; opacity: 0.4; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; flex: 1; }
+
+    .header-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.07); border: none; color: #fff;
+      padding: 4px 10px; border-radius: 10px; font-size: 11px; cursor: pointer;
+      transition: background 0.2s; flex-shrink: 0; white-space: nowrap;
+    }
+    .header-btn:hover { background: rgba(255,255,255,0.13); }
+    #clear-btn { color: rgba(255,120,120,0.8); }
+    #clear-btn:hover { background: rgba(255,80,80,0.12); color: rgba(255,120,120,1); }
+
+    #file-list { flex: 1; overflow-y: auto; padding: 4px 0; }
+    #file-list::-webkit-scrollbar { width: 4px; }
+    #file-list::-webkit-scrollbar-track { background: transparent; }
+    #file-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+    /* ── Track items ── */
+    .track-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 14px; height: 36px;
+      cursor: pointer; border-radius: 6px; margin: 0 6px;
+      transition: background 0.12s; position: relative;
+    }
+    .track-item:hover { background: rgba(255,255,255,0.06); }
+    .track-item.selected { background: rgba(100,140,255,0.18); }
+    .track-item.playing { background: rgba(255,255,255,0.05); }
+    .track-item.drag-over { background: rgba(255,255,255,0.12); outline: 1px solid rgba(255,255,255,0.25); }
+    .track-item.dragging { opacity: 0.3; }
+
+    .track-num {
+      font-size: 11px; opacity: 0.3; min-width: 20px;
+      text-align: right; flex-shrink: 0;
+    }
+
+    /* animated dots indicator — sits to the right of the track number */
+    .track-playing {
+      display: none; align-items: center; gap: 2px;
+      flex-shrink: 0; width: 20px; justify-content: flex-end;
+    }
+    .track-item.playing .track-playing { display: flex; }
+    .track-item.playing.paused .track-playing span { animation-play-state: paused; }
+    .track-playing span {
+      display: block; width: 3px; height: 3px;
+      border-radius: 50%; background: rgba(255,255,255,0.45);
+      animation: dot-bounce 1.2s ease-in-out infinite;
+    }
+    .track-playing span:nth-child(2) { animation-delay: 0.2s; }
+    .track-playing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot-bounce {
+      0%, 80%, 100% { transform: scale(1); opacity: 0.35; }
+      40% { transform: scale(1.5); opacity: 0.85; }
+    }
+
+    .track-meta { flex: 1; overflow: hidden; min-width: 0; }
+    .track-name { font-size: 12px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-item.playing .track-name { opacity: 1; font-weight: 600; }
+    .track-item.selected .track-name { opacity: 1; }
+    .track-sub { font-size: 11px; opacity: 0.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+    .track-dur { font-size: 11px; opacity: 0.3; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+  <div id="drop-screen">
+    <svg class="drop-icon" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+    </svg>
+    <h1>Drop a folder of music</h1>
+    <p>mp3, m4a, flac, wav, ogg, aac</p>
+    <button id="open-btn">Choose Folder…</button>
+  </div>
+
+  <div id="app">
+
+    <div id="visualizer-wrap">
+      <img id="album-art" draggable="false">
+      <canvas id="visualizer"></canvas>
+      <img id="album-thumb" draggable="false">
+      <div id="track-info">
+        <div id="track-title">–</div>
+        <div id="track-artist"></div>
+      </div>
+    </div>
+
+    <div id="seek-wrap">
+      <input id="seek" type="range" min="0" max="100" value="0" step="0.1">
+      <div id="time-row">
+        <span id="time-cur">0:00</span>
+        <span id="time-dur">0:00</span>
+      </div>
+    </div>
+
+    <div id="controls">
+      <button class="ctrl-btn" id="prev-btn" title="Previous">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/>
+        </svg>
+      </button>
+      <button class="ctrl-btn" id="play-btn" title="Play/Pause (Space)">
+        <svg id="icon-play" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <svg id="icon-pause" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display:none">
+          <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+        </svg>
+      </button>
+      <button class="ctrl-btn" id="next-btn" title="Next">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>
+        </svg>
+      </button>
+      <div class="spacer"></div>
+      <div id="vol-wrap">
+        <span id="vol-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+        </span>
+        <input id="volume" type="range" min="0" max="1" step="0.01" value="1" title="Volume">
+      </div>
+    </div>
+
+    <div id="drawer">
+      <div id="drawer-header">
+        <span id="file-count">0 tracks</span>
+
+        <!-- Unshuffle: only shown after shuffle -->
+        <button class="header-btn" id="unshuffle-btn" style="display:none">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+          Unshuffle
+        </button>
+
+        <!-- Shuffle -->
+        <button class="header-btn" id="shuffle-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="9" height="9" rx="1.5"/>
+            <rect x="13" y="2" width="9" height="9" rx="1.5"/>
+            <rect x="13" y="13" width="9" height="9" rx="1.5"/>
+            <rect x="2" y="13" width="9" height="9" rx="1.5"/>
+            <circle cx="6.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+            <circle cx="6.5" cy="17.5" r="1" fill="currentColor" stroke="none"/>
+            <circle cx="17.5" cy="17.5" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+          Shuffle
+        </button>
+
+        <!-- Clear -->
+        <button class="header-btn" id="clear-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+          </svg>
+          Clear All
+        </button>
+      </div>
+      <div id="file-list"></div>
+    </div>
+
+  </div>
+
+  <audio id="audio"></audio>
+  <script src="renderer.js"></script>
+</body>
+</html>
