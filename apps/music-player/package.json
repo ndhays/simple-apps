@@ -14,7 +14,7 @@
     "build": "electron-builder --mac"
   },
   "build": {
-    "appId": "com.player.app",
+    "appId": "com.nickdemarest.player",
     "electronVersion": "28.3.3",
     "productName": "Player",
     "mac": {
@@ -24,6 +24,10 @@
         "dmg",
         "zip"
       ]
+    },
+    "linux": {
+      "target": ["deb"],
+      "category": "Audio"
     },
     "files": [
       "src/**/*",

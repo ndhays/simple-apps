@@ -5,11 +5,11 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx electron-builder --mac --project apps/music-player"
+        "command": "npx electron-builder --project apps/music-player"
       },
       "configurations": {
         "release": {
-          "command": "npx electron-builder --mac --publish always --project apps/music-player"
+          "command": "npx electron-builder --publish always --project apps/music-player"
         }
       }
     },

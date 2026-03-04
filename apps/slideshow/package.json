@@ -15,7 +15,7 @@
     "build-dmg": "electron-builder --mac dmg"
   },
   "build": {
-    "appId": "com.slideshow.app",
+    "appId": "com.nickdemarest.slideshow",
     "electronVersion": "28.3.3",
     "productName": "Slideshow",
     "mac": {
@@ -28,6 +28,10 @@
     },
     "dmg": {
       "title": "Slideshow"
+    },
+    "linux": {
+      "target": ["deb"],
+      "category": "Graphics"
     },
     "files": [
       "src/**/*",
