@@ -11,15 +11,13 @@
     "sharedGlobals": []
   },
   "release": {
+    "changelog": {
+      "projectChangelogs": true
+    },
     "projectsRelationship": "independent",
     "projects": [
       "slideshow",
       "music-player"
-    ],
-    "git": {
-      "commit": true,
-      "tag": true,
-      "push": true
-    }
+    ]
   }
 }
