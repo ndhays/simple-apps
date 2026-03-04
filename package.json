@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "release": "npx nx release --skip-publish"
+    "release": "npx nx release --skip-publish && git push origin main --tags"
   },
   "private": true,
   "dependencies": {},
