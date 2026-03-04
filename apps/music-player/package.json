@@ -1,6 +1,6 @@
 {
   "name": "player",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Nick Demarest",
   "repository": {
     "type": "git",
@@ -26,7 +26,9 @@
       ]
     },
     "linux": {
-      "target": ["deb"],
+      "target": [
+        "deb"
+      ],
       "category": "Audio"
     },
     "files": [
